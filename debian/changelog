@@ -1,0 +1,41 @@
+pyrsistent (0.15.5-1) unstable; urgency=medium
+
+  * New upstream version 0.15.5.
+
+ -- Andrej Shadura <andrewsh@debian.org>  Sat, 16 Nov 2019 19:35:19 +0100
+
+pyrsistent (0.15.4-3) unstable; urgency=medium
+
+  [ Ondřej Nový ]
+  * Bump Standards-Version to 4.4.1.
+
+  [ Andrej Shadura ]
+  * Use secure URI in Homepage field.
+
+ -- Andrej Shadura <andrewsh@debian.org>  Sun, 27 Oct 2019 22:31:42 +0100
+
+pyrsistent (0.15.4-2) unstable; urgency=medium
+
+  * No change reupload.
+
+ -- Andrej Shadura <andrewsh@debian.org>  Fri, 27 Sep 2019 17:16:20 +0200
+
+pyrsistent (0.15.4-1) unstable; urgency=medium
+
+  [ Andrej Shadura ]
+  * New upstream release.
+  * Update the copyrights.
+  * Build-Depend on python3-pytest-runner.
+  * Add Thomas Goirand as an Uploader.
+
+  [ Ondřej Nový ]
+  * Bump Standards-Version to 4.4.0.
+  * d/watch: Use https protocol.
+
+ -- Andrej Shadura <andrewsh@debian.org>  Fri, 27 Sep 2019 16:52:14 +0200
+
+pyrsistent (0.14.10-1) unstable; urgency=low
+
+  * Initial upload (Closes: #941092).
+
+ -- Andrej Shadura <andrewsh@debian.org>  Sat, 09 Feb 2019 12:50:44 +0100
