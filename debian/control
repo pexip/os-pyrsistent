@@ -1,12 +1,12 @@
 Source: pyrsistent
-Maintainer: Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
+Maintainer: Debian Python Team <team+python@tracker.debian.org>
 Uploaders:
  Andrej Shadura <andrewsh@debian.org>,
  Thomas Goirand <zigo@debian.org>
 Section: python
 Priority: optional
 Build-Depends:
- debhelper-compat (= 12),
+ debhelper-compat (= 13),
  dh-python,
  python3-all-dev,
  python3-setuptools,
@@ -14,11 +14,11 @@ Build-Depends:
  python3-pytest,
  python3-pytest-runner,
  python3-hypothesis,
-Standards-Version: 4.4.1
+Standards-Version: 4.5.1
 Testsuite: autopkgtest-pkg-python
 Homepage: https://github.com/tobgu/pyrsistent/
-Vcs-Browser: https://salsa.debian.org/python-team/modules/pyrsistent
-Vcs-Git: https://salsa.debian.org/python-team/modules/pyrsistent.git
+Vcs-Browser: https://salsa.debian.org/python-team/packages/pyrsistent
+Vcs-Git: https://salsa.debian.org/python-team/packages/pyrsistent.git
 
 Package: python3-pyrsistent
 Architecture: any

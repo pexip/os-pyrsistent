@@ -1,7 +1,6 @@
 import pickle
 import datetime
 import pytest
-import six
 import uuid
 from pyrsistent import (
     PRecord, field, InvariantException, ny, pset, PSet, CheckedPVector,
@@ -55,6 +54,21 @@ def test_create_ignore_extra_true_sequence_hierarchy():
          'extra_field____': 'extra_data_2',
          }, ignore_extra=True
     )
+    assert h
+
+
+def test_ignore_extra_for_pvector_field():
+    class HierarchyA(PRecord):
+        points = pvector_field(ARecord, optional=False)
+
+    class HierarchyB(PRecord):
+        points = pvector_field(ARecord, optional=True)
+
+    point_object = {'x': 1, 'y': 'foo', 'extra_field': 69}
+
+    h = HierarchyA.create({'points': [point_object]}, ignore_extra=True)
+    assert h
+    h = HierarchyB.create({'points': [point_object]}, ignore_extra=True)
     assert h
 
 
@@ -207,15 +221,15 @@ def test_enum_field():
     except ImportError:
         return  # Enum not supported in this environment
 
-    class TestEnum(Enum):
+    class ExampleEnum(Enum):
         x = 1
         y = 2
 
     class RecordContainingEnum(PRecord):
-        enum_field = field(type=TestEnum)
+        enum_field = field(type=ExampleEnum)
 
-    r = RecordContainingEnum(enum_field=TestEnum.x)
-    assert r.enum_field == TestEnum.x
+    r = RecordContainingEnum(enum_field=ExampleEnum.x)
+    assert r.enum_field == ExampleEnum.x
 
 def test_type_specification_must_be_a_type():
     with pytest.raises(TypeError):
@@ -363,8 +377,8 @@ def test_transform_without_update_returns_same_precord():
 
 
 class Application(PRecord):
-    name = field(type=(six.text_type,) + six.string_types)
-    image = field(type=(six.text_type,) + six.string_types)
+    name = field(type=str)
+    image = field(type=str)
 
 
 class ApplicationVector(CheckedPVector):

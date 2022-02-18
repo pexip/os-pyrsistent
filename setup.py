@@ -2,16 +2,17 @@ import os
 from setuptools import setup, Extension
 import sys
 import platform
-import warnings
 import codecs
 from distutils.command.build_ext import build_ext
-from distutils.errors import CCompilerError
-from distutils.errors import DistutilsPlatformError, DistutilsExecError
-from _pyrsistent_version import __version__
 
-readme_path = os.path.join(os.path.dirname(__file__), 'README.rst')
-with codecs.open(readme_path, encoding='utf8') as f:
-    readme = f.read()
+if platform.system() != "Windows":
+    readme_path = os.path.join(os.path.dirname(__file__), 'README.rst')
+    with codecs.open(readme_path, encoding='utf8') as f:
+        readme = f.read()
+else:
+    # The format is messed up with extra line breaks when building wheels on windows.
+    # Skip readme in this case.
+    readme = "Persistent collections, see https://github.com/tobgu/pyrsistent/ for details."
 
 extensions = []
 if platform.python_implementation() == 'CPython':
@@ -51,31 +52,32 @@ WARNING: Could not build the %s.
 
 setup(
     name='pyrsistent',
-    version=__version__,
     description='Persistent/Functional/Immutable data structures',
     long_description=readme,
+    long_description_content_type='text/x-rst',
     author='Tobias Gustafsson',
     author_email='tobias.l.gustafsson@gmail.com',
     url='http://github.com/tobgu/pyrsistent/',
     license='MIT',
+    license_files=['LICENSE.mit'],
     py_modules=['_pyrsistent_version'],
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
     test_suite='tests',
-    tests_require=['pytest<5', 'hypothesis<5'],
+    tests_require=['pytest<7', 'hypothesis<7'],
     scripts=[],
     setup_requires=pytest_runner,
     ext_modules=extensions,
     cmdclass={'build_ext': custom_build_ext},
-    install_requires=['six'],
     packages=['pyrsistent'],
     package_data={'pyrsistent': ['py.typed', '__init__.pyi', 'typing.pyi']},
+    python_requires='>=3.7',
 )
