@@ -142,12 +142,12 @@ static Py_ssize_t PVector_len(PVector *self) {
 }
 
 /* Convenience macros */
-#define ROOT_NODE_FULL(vec) ((vec->count >> SHIFT) > (1 << vec->shift))
+#define ROOT_NODE_FULL(vec) ((vec->count >> SHIFT) > (Py_ssize_t)(1 << vec->shift))
 #define TAIL_OFF(vec) ((vec->count < BRANCH_FACTOR) ? 0 : (((vec->count - 1) >> SHIFT) << SHIFT))
 #define TAIL_SIZE(vec) (vec->count - TAIL_OFF(vec))
 #define PVector_CheckExact(op) (Py_TYPE(op) == &PVectorType)
 
-static VNode* nodeFor(PVector *self, int i){
+static VNode* nodeFor(PVector *self, Py_ssize_t i){
   int level;
   if((i >= 0) && (i < self->count)) {
     if(i >= TAIL_OFF(self)) {
@@ -265,22 +265,14 @@ static PyObject *PVector_repr(PVector *self) {
     return NULL;
   }
   
-  // Repr for list implemented differently in python 2 and 3. Need to
-  // handle this or core dump will occur.
-#if PY_MAJOR_VERSION >= 3
   PyObject *s = PyUnicode_FromFormat("%s%U%s", "pvector(", list_repr, ")");
   Py_DECREF(list_repr);
-#else
-  PyObject *s = PyString_FromString("pvector(");
-  PyString_ConcatAndDel(&s, list_repr);
-  PyString_ConcatAndDel(&s, PyString_FromString(")"));
-#endif
 
   return s;
 }
 
 
-static long PVector_hash(PVector *self) {
+static Py_hash_t PVector_hash(PVector *self) {
   // Follows the pattern of the tuple hash
   long x, y;
   Py_ssize_t i;
@@ -422,7 +414,7 @@ static PyObject* PVector_repeat(PVector *self, Py_ssize_t n) {
   } else if ((self->count * n)/self->count != n) {
     return PyErr_NoMemory();
   } else {
-    int i, j;
+    Py_ssize_t i, j;
     PVector *newVec = copyPVector(self);
     for(i=0; i<(n-1); i++) {
       for(j=0; j<self->count; j++) {
@@ -472,11 +464,7 @@ static PyObject* PVector_index(PVector *self, PyObject *args) {
   for (i = start; i < stop && i < self->count; i++) {
     int cmp = PyObject_RichCompareBool(_get_item(self, i), value, Py_EQ);
     if (cmp > 0) {
-#if PY_MAJOR_VERSION >= 3
       return PyLong_FromSsize_t(i);
-#else
-      return PyInt_FromSsize_t(i);
-#endif
     } else if (cmp < 0) {
       return NULL;
     }
@@ -499,11 +487,7 @@ static PyObject* PVector_count(PVector *self, PyObject *value) {
     }
   }
 
-#if PY_MAJOR_VERSION >= 3
-      return PyLong_FromSsize_t(count);
-#else
-      return PyInt_FromSsize_t(count);
-#endif
+  return PyLong_FromSsize_t(count);
 }
 
 static PyObject* PVector_pickle_reduce(PVector *self) {
@@ -790,12 +774,7 @@ static void extendWithItem(PVector *newVec, PyObject *item) {
 }
 
 
-#if PY_MAJOR_VERSION >= 3
-// This was changed in 3.2 but we do not claim compatibility with any older version of python 3.
 #define SLICE_CAST
-#else
-#define SLICE_CAST (PySliceObject *)
-#endif
 
 static PyObject *PVector_subscript(PVector* self, PyObject* item) {
   if (PyIndex_Check(item)) {
@@ -853,7 +832,7 @@ static PyObject *PVector_subscript(PVector* self, PyObject* item) {
    These are some optimizations that could be done to this function,
    these are not considered important enough yet though.
    - Use the PySequence_Fast ops if the iterable is a list or a tuple (which it
-     whould probably often be)
+     would probably often be)
    - Only copy the original tail if it is not full
    - No need to try to increment ref count in tail for the whole tail
 */
@@ -1088,11 +1067,7 @@ static PyObject* PVector_remove(PVector *self, PyObject *args) {
   PyObject* py_index = PVector_index(self, args);
 
   if(py_index != NULL) {
-#if PY_MAJOR_VERSION >= 3
       index = PyLong_AsSsize_t(py_index);
-#else
-      index = PyInt_AsSsize_t(py_index);
-#endif
     Py_DECREF(py_index);
     return internalDelete(self, index, NULL);
   }
@@ -1228,10 +1203,10 @@ static PyMethodDef PVectorEvolver_methods[] = {
 	{"append",      (PyCFunction)PVectorEvolver_append, METH_O,       "Appends an element"},
 	{"extend",      (PyCFunction)PVectorEvolver_extend, METH_O|METH_COEXIST, "Extend"},
 	{"set",         (PyCFunction)PVectorEvolver_set, METH_VARARGS, "Set item"},
-        {"delete",      (PyCFunction)PVectorEvolver_delete, METH_VARARGS, "Delete item"},
-        {"persistent",  (PyCFunction)PVectorEvolver_persistent, METH_NOARGS, "Create PVector from evolver"},
-        {"is_dirty",    (PyCFunction)PVectorEvolver_is_dirty, METH_NOARGS, "Check if evolver contains modifications"},
-        {NULL,              NULL}           /* sentinel */
+	{"delete",      (PyCFunction)PVectorEvolver_delete, METH_VARARGS, "Delete item"},
+	{"persistent",  (PyCFunction)PVectorEvolver_persistent, METH_NOARGS, "Create PVector from evolver"},
+	{"is_dirty",    (PyCFunction)PVectorEvolver_is_dirty, METH_NOARGS, "Check if evolver contains modifications"},
+	{NULL,          NULL}           /* sentinel */
 };
 
 static PyTypeObject PVectorEvolverType = {
@@ -1577,7 +1552,6 @@ static PyMethodDef PyrsistentMethods[] = {
 
 /********************* Python module initialization ************************/
 
-#if PY_MAJOR_VERSION >= 3
   static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "pvectorc",          /* m_name */
@@ -1589,9 +1563,8 @@ static PyMethodDef PyrsistentMethods[] = {
     NULL,                /* m_clear */
     NULL,                /* m_free */
   };
-#endif
 
-PyObject* moduleinit(void) {
+static PyObject* pyrsistent_pvectorc_moduleinit(void) {
   PyObject* m;
   
   // Only allow creation/initialization through factory method pvec
@@ -1609,11 +1582,7 @@ PyObject* moduleinit(void) {
   }
 
 
-#if PY_MAJOR_VERSION >= 3
   m = PyModule_Create(&moduledef);
-#else
-  m = Py_InitModule3("pvectorc", PyrsistentMethods, "Persistent vector");  
-#endif
 
   if (m == NULL) {
     return NULL;
@@ -1631,12 +1600,6 @@ PyObject* moduleinit(void) {
   return m;
 }
 
-#if PY_MAJOR_VERSION >= 3
 PyMODINIT_FUNC PyInit_pvectorc(void) {
-  return moduleinit();
+  return pyrsistent_pvectorc_moduleinit();
 }
-#else
-PyMODINIT_FUNC initpvectorc(void) {
-  moduleinit();
-}
-#endif

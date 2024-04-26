@@ -1,18 +1,12 @@
 Pyrsistent
 ==========
-.. image:: https://travis-ci.org/tobgu/pyrsistent.png?branch=master
-    :target: https://travis-ci.org/tobgu/pyrsistent
-
-.. image:: https://badge.fury.io/py/pyrsistent.svg
-    :target: https://badge.fury.io/py/pyrsistent
-
-.. image:: https://coveralls.io/repos/tobgu/pyrsistent/badge.svg?branch=master&service=github
-    :target: https://coveralls.io/github/tobgu/pyrsistent?branch=master
+.. image:: https://github.com/tobgu/pyrsistent/actions/workflows/tests.yaml/badge.svg
+    :target: https://github.com/tobgu/pyrsistent/actions/workflows/tests.yaml
 
 
 .. _Pyrthon: https://www.github.com/tobgu/pyrthon/
 
-Pyrsistent is a number of persistent collections (by some referred to as functional data structures). Persistent in 
+Pyrsistent is a number of persistent collections (by some referred to as functional data structures). Persistent in
 the sense that they are immutable.
 
 All methods on a data structure that would normally mutate it instead return a new copy of the structure containing the
@@ -222,7 +216,7 @@ by providing an iterable of types.
 
 
 Custom types (classes) that are iterable should be wrapped in a tuple to prevent their
-members being added to the set of valid types.  Although Enums in particular are now 
+members being added to the set of valid types.  Although Enums in particular are now
 supported without wrapping, see #83 for more information.
 
 Mandatory fields
@@ -329,7 +323,7 @@ It is also possible to have fields with ``pyrsistent`` collections.
    ...     map_int_to_str = pmap_field(int, str)
    ...     vector_of_strs = pvector_field(str)
    ...
-	
+
 Serialization
 *************
 PRecords support serialization back to dicts. Default serialization will take keys and values
@@ -559,37 +553,40 @@ These functions are great when your cozy immutable world has to interact with th
     >>> thaw(v(1, m(a=3)))
     [1, {'a': 3}]
 
+By default, freeze will also recursively convert values inside PVectors and PMaps. This behaviour can be changed by providing freeze with the flag strict=False.
+
+.. code:: python
+
+    >>> from pyrsistent import freeze, v, m
+    >>> freeze(v(1, v(2, [3])))
+    pvector([1, pvector([2, pvector([3])])])
+    >>> freeze(v(1, v(2, [3])), strict=False)
+    pvector([1, pvector([2, [3]])])
+    >>> freeze(m(a=m(b={'c': 1})))
+    pmap({'a': pmap({'b': pmap({'c': 1})})})
+    >>> freeze(m(a=m(b={'c': 1})), strict=False)
+    pmap({'a': pmap({'b': {'c': 1}})})
+
+In this regard, thaw operates as the inverse of freeze so will thaw values inside native data structures unless passed the strict=False flag.
+
+
 Compatibility
 -------------
 
-Pyrsistent is developed and tested on Python 2.7, 3.5, 3.6, 3.7 and PyPy (Python 2 and 3 compatible). It will most
-likely work on all other versions >= 3.4 but no guarantees are given. :)
-
-Compatibility issues
-~~~~~~~~~~~~~~~~~~~~
-
-.. _27: https://github.com/tobgu/pyrsistent/issues/27
-
-There is currently one known compatibility issue when comparing built in sets and frozensets to PSets as discussed in 27_.
-It affects python 2 versions < 2.7.8 and python 3 versions < 3.4.0 and is due to a bug described in
-http://bugs.python.org/issue8743.
-
-Comparisons will fail or be incorrect when using the set/frozenset as left hand side of the comparison. As a workaround
-you need to either upgrade Python to a more recent version, avoid comparing sets/frozensets with PSets or always make
-sure to convert both sides of the comparison to the same type before performing the comparison.
+Pyrsistent is developed and tested on Python 3.7+ and PyPy3.
 
 Performance
 -----------
 
-Pyrsistent is developed with performance in mind. Still, while some operations are nearly on par with their built in, 
+Pyrsistent is developed with performance in mind. Still, while some operations are nearly on par with their built in,
 mutable, counterparts in terms of speed, other operations are slower. In the cases where attempts at
 optimizations have been done, speed has generally been valued over space.
 
-Pyrsistent comes with two API compatible flavors of PVector (on which PMap and PSet are based), one pure Python 
+Pyrsistent comes with two API compatible flavors of PVector (on which PMap and PSet are based), one pure Python
 implementation and one implemented as a C extension. The latter generally being 2 - 20 times faster than the former.
 The C extension will be used automatically when possible.
 
-The pure python implementation is fully PyPy compatible. Running it under PyPy speeds operations up considerably if 
+The pure python implementation is fully PyPy compatible. Running it under PyPy speeds operations up considerably if
 the structures are used heavily (if JITed), for some cases the performance is almost on par with the built in counterparts.
 
 Type hints
@@ -676,6 +673,39 @@ Semen Zhydenko https://github.com/ss18
 
 Till Varoquaux  https://github.com/till-varoquaux
 
+Michal Kowalik https://github.com/michalvi
+
+ossdev07 https://github.com/ossdev07
+
+Kerry Olesen https://github.com/qhesz
+
+johnthagen https://github.com/johnthagen
+
+Bastien Vallet https://github.com/djailla
+
+Ram Rachum  https://github.com/cool-RR
+
+Vincent Philippon https://github.com/vphilippon
+
+Andrey Bienkowski https://github.com/hexagonrecursion
+
+Ethan McCue https://github.com/bowbahdoe
+
+Jason R. Coombs https://github.com/jaraco
+
+Nathan https://github.com/ndowens
+
+Geert Barentsen https://github.com/barentsen
+
+phil-arh https://github.com/phil-arh
+
+Tamás Nepusz https://github.com/ntamas
+
+Hugo van Kemenade https://github.com/hugovk
+
+Ben Beasley https://github.com/musicinmybrain
+
+
 Contributing
 ------------
 
@@ -690,16 +720,17 @@ Tests can be executed using tox_.
 
 Install tox: ``pip install tox``
 
-Run test for Python 2.7: ``tox -epy27``
+Run test for Python 3.8: ``tox -e py38``
 
 Release
 ~~~~~~~
+* `pip install -r requirements.txt`
 * Update CHANGES.txt
-* Update README with any new contributors and potential info needed.
+* Update README.rst with any new contributors and potential info needed.
 * Update _pyrsistent_version.py
-* python setup.py sdist upload
-* Commit and tag with new version: git add -u . && git commit -m 'Prepare version vX.Y.Z' && git tag -a vX.Y.Z -m 'vX.Y.Z'
-* Push commit and tags: git push && git push --tags
+* Commit and tag with new version: `git add -u . && git commit -m 'Prepare version vX.Y.Z' && git tag -a vX.Y.Z -m 'vX.Y.Z'`
+* Push commit and tags: `git push && git push --tags`
+* Build new release using Github actions
 
 Project status
 --------------
