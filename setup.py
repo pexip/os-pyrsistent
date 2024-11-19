@@ -15,7 +15,7 @@ else:
     readme = "Persistent collections, see https://github.com/tobgu/pyrsistent/ for details."
 
 extensions = []
-if platform.python_implementation() == 'CPython':
+if platform.python_implementation() == 'CPython' and os.getenv("PYRSISTENT_SKIP_EXTENSION") is None:
     extensions = [Extension('pvectorc', sources=['pvectorcmodule.c'])]
 
 needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
@@ -57,7 +57,10 @@ setup(
     long_description_content_type='text/x-rst',
     author='Tobias Gustafsson',
     author_email='tobias.l.gustafsson@gmail.com',
-    url='http://github.com/tobgu/pyrsistent/',
+    url='https://github.com/tobgu/pyrsistent/',
+    project_urls={
+        'Changelog': 'https://pyrsistent.readthedocs.io/en/latest/changes.html',
+    },
     license='MIT',
     license_files=['LICENSE.mit'],
     py_modules=['_pyrsistent_version'],
@@ -65,10 +68,11 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
     test_suite='tests',
@@ -79,5 +83,5 @@ setup(
     cmdclass={'build_ext': custom_build_ext},
     packages=['pyrsistent'],
     package_data={'pyrsistent': ['py.typed', '__init__.pyi', 'typing.pyi']},
-    python_requires='>=3.7',
+    python_requires='>=3.8',
 )

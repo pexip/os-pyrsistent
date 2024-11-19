@@ -10,7 +10,6 @@ Build-Depends:
  dh-python,
  python3-all-dev,
  python3-setuptools,
- python3-six,
  python3-pytest,
  python3-pytest-runner,
  python3-hypothesis,

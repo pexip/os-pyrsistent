@@ -1,8 +1,10 @@
+from collections import namedtuple
 from collections.abc import Mapping, Hashable
 from operator import add
 import pytest
-from pyrsistent import pmap, m, PVector
+from pyrsistent import pmap, m
 import pickle
+
 
 def test_instance_of_hashable():
     assert isinstance(m(), Hashable)
@@ -18,8 +20,8 @@ def test_literalish_works():
 
 
 def test_empty_initialization():
-    map = pmap()
-    assert len(map) == 0
+    a_map = pmap()
+    assert len(a_map) == 0
 
 
 def test_initialization_with_one_element():
@@ -54,26 +56,35 @@ def test_remove_non_existing_element_raises_key_error():
 
 
 def test_various_iterations():
-    assert set(['a', 'b']) == set(m(a=1, b=2))
+    assert {'a', 'b'} == set(m(a=1, b=2))
     assert ['a', 'b'] == sorted(m(a=1, b=2).keys())
-    assert isinstance(m().keys(), PVector)
 
-    assert set([1, 2]) == set(m(a=1, b=2).itervalues())
+    assert {1, 2} == set(m(a=1, b=2).itervalues())
     assert [1, 2] == sorted(m(a=1, b=2).values())
-    assert isinstance(m().values(), PVector)
 
-    assert set([('a', 1), ('b', 2)]) == set(m(a=1, b=2).iteritems())
-    assert set([('a', 1), ('b', 2)]) == set(m(a=1, b=2).items())
-    assert isinstance(m().items(), PVector)
+    assert {('a', 1), ('b', 2)} == set(m(a=1, b=2).iteritems())
+    assert {('a', 1), ('b', 2)} == set(m(a=1, b=2).items())
+
+    pm = pmap({k: k for k in range(100)})
+    assert len(pm) == len(pm.keys())
+    assert len(pm) == len(pm.values())
+    assert len(pm) == len(pm.items())
+    ks = pm.keys()
+    assert all(k in pm for k in ks)
+    assert all(k in ks for k in ks)
+    us = pm.items()
+    assert all(pm[k] == v for (k, v) in us)
+    vs = pm.values()
+    assert all(v in vs for v in vs)
 
 
 def test_initialization_with_two_elements():
-    map = pmap({'a': 2, 'b': 3})
-    assert len(map) == 2
-    assert map['a'] == 2
-    assert map['b'] == 3
+    map1 = pmap({'a': 2, 'b': 3})
+    assert len(map1) == 2
+    assert map1['a'] == 2
+    assert map1['b'] == 3
 
-    map2 = map.remove('a')
+    map2 = map1.remove('a')
     assert 'a' not in map2
     assert map2['b'] == 3
 
@@ -137,12 +148,11 @@ def test_same_hash_when_content_the_same_but_underlying_vector_size_differs():
 
 
 class HashabilityControlled(object):
-
     hashable = True
 
     def __hash__(self):
         if self.hashable:
-            return 4 # Proven random
+            return 4  # Proven random
         raise ValueError("I am not currently hashable.")
 
 
@@ -243,8 +253,10 @@ def test_update_no_arguments():
 def test_addition():
     assert m(x=1, y=2) + m(y=3, z=4) == m(x=1, y=3, z=4)
 
+
 def test_union_operator():
     assert m(x=1, y=2) | m(y=3, z=4) == m(x=1, y=3, z=4)
+
 
 def test_transform_base_case():
     # Works as set when called with only one key
@@ -274,45 +286,44 @@ class HashDummy(object):
 
 
 def test_hash_collision_is_correctly_resolved():
-
     dummy1 = HashDummy()
     dummy2 = HashDummy()
     dummy3 = HashDummy()
     dummy4 = HashDummy()
 
-    map = pmap({dummy1: 1, dummy2: 2, dummy3: 3})
-    assert map[dummy1] == 1
-    assert map[dummy2] == 2
-    assert map[dummy3] == 3
-    assert dummy4 not in map
+    map1 = pmap({dummy1: 1, dummy2: 2, dummy3: 3})
+    assert map1[dummy1] == 1
+    assert map1[dummy2] == 2
+    assert map1[dummy3] == 3
+    assert dummy4 not in map1
 
     keys = set()
     values = set()
-    for k, v in map.iteritems():
+    for k, v in map1.iteritems():
         keys.add(k)
         values.add(v)
 
-    assert keys == set([dummy1, dummy2, dummy3])
-    assert values == set([1, 2, 3])
+    assert keys == {dummy1, dummy2, dummy3}
+    assert values == {1, 2, 3}
 
-    map2 = map.set(dummy1, 11)
+    map2 = map1.set(dummy1, 11)
     assert map2[dummy1] == 11
 
     # Re-use existing structure when inserted element is the same
     assert map2.set(dummy1, 11) is map2
 
-    map3 = map.set('a', 22)
+    map3 = map1.set('a', 22)
     assert map3['a'] == 22
     assert map3[dummy3] == 3
 
     # Remove elements
-    map4 = map.discard(dummy2)
+    map4 = map1.discard(dummy2)
     assert len(map4) == 2
     assert map4[dummy1] == 1
     assert dummy2 not in map4
     assert map4[dummy3] == 3
 
-    assert map.discard(dummy4) is map
+    assert map1.discard(dummy4) is map1
 
     # Empty map handling
     empty_map = map4.remove(dummy1).remove(dummy3)
@@ -321,19 +332,19 @@ def test_hash_collision_is_correctly_resolved():
 
 
 def test_bitmap_indexed_iteration():
-    map = pmap({'a': 2, 'b': 1})
+    a_map = pmap({'a': 2, 'b': 1})
     keys = set()
     values = set()
 
     count = 0
-    for k, v in map.iteritems():
+    for k, v in a_map.iteritems():
         count += 1
         keys.add(k)
         values.add(v)
 
     assert count == 2
-    assert keys == set(['a', 'b'])
-    assert values == set([2, 1])
+    assert keys == {'a', 'b'}
+    assert values == {2, 1}
 
 
 def test_iteration_with_many_elements():
@@ -348,12 +359,12 @@ def test_iteration_with_many_elements():
     # those properly as well
     init_dict[hash_dummy1] = 12345
     init_dict[hash_dummy2] = 54321
-    map = pmap(init_dict)
+    a_map = pmap(init_dict)
 
     actual_values = set()
     actual_keys = set()
 
-    for k, v in map.iteritems():
+    for k, v in a_map.iteritems():
         actual_values.add(v)
         actual_keys.add(k)
 
@@ -368,6 +379,7 @@ def test_str():
 def test_empty_truthiness():
     assert m(a=1)
     assert not m()
+
 
 def test_update_with():
     assert m(a=1).update_with(add, m(a=2, b=4)) == m(a=3, b=4)
@@ -388,7 +400,7 @@ def test_pickling_non_empty_map():
 
 
 def test_set_with_relocation():
-    x = pmap({'a':1000}, pre_size=1)
+    x = pmap({'a': 1000}, pre_size=1)
     x = x.set('b', 3000)
     x = x.set('c', 4000)
     x = x.set('d', 5000)
@@ -409,7 +421,7 @@ def test_evolver_simple_update():
 
 
 def test_evolver_update_with_relocation():
-    x = pmap({'a':1000}, pre_size=1)
+    x = pmap({'a': 1000}, pre_size=1)
     e = x.evolver()
     e['b'] = 3000
     e['c'] = 4000
@@ -490,9 +502,50 @@ def test_supports_weakref():
     weakref.ref(m(a=1))
 
 
+def test_insert_and_get_many_elements():
+    # This test case triggers reallocation of the underlying bucket structure.
+    a_map = m()
+    for x in range(1000):
+        a_map = a_map.set(str(x), x)
+
+    assert len(a_map) == 1000
+    for x in range(1000):
+        assert a_map[str(x)] == x, x
+
+
 def test_iterable():
     """
     PMaps can be created from iterables even though they can't be len() hinted.
     """
 
     assert pmap(iter([("a", "b")])) == pmap([("a", "b")])
+
+
+class BrokenPerson(namedtuple('Person', 'name')):
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+
+class BrokenItem(namedtuple('Item', 'name')):
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+
+def test_pmap_removal_with_broken_classes_deriving_from_namedtuple():
+    """
+    The two classes above implement __eq__ but also would need to implement __ne__ to compare
+    consistently. See issue https://github.com/tobgu/pyrsistent/issues/268 for details.
+    """
+    s = pmap({BrokenPerson('X'): 2, BrokenItem('X'): 3})
+    s = s.remove(BrokenPerson('X'))
+
+    # Both items are removed due to how they are compared for inequality
+    assert BrokenPerson('X') not in s
+    assert BrokenItem('X') in s
+    assert len(s) == 1
