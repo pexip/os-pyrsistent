@@ -1,21 +1,22 @@
 Metadata-Version: 2.1
 Name: pyrsistent
-Version: 0.18.1
+Version: 0.20.0
 Summary: Persistent/Functional/Immutable data structures
-Home-page: http://github.com/tobgu/pyrsistent/
+Home-page: https://github.com/tobgu/pyrsistent/
 Author: Tobias Gustafsson
 Author-email: tobias.l.gustafsson@gmail.com
 License: MIT
-Platform: UNKNOWN
+Project-URL: Changelog, https://pyrsistent.readthedocs.io/en/latest/changes.html
 Classifier: Intended Audience :: Developers
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
-Classifier: Programming Language :: Python :: 3.7
 Classifier: Programming Language :: Python :: 3.8
 Classifier: Programming Language :: Python :: 3.9
 Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
 Classifier: Programming Language :: Python :: Implementation :: PyPy
-Requires-Python: >=3.7
+Requires-Python: >=3.8
 Description-Content-Type: text/x-rst
 License-File: LICENSE.mit
 
@@ -25,7 +26,8 @@ Pyrsistent
     :target: https://github.com/tobgu/pyrsistent/actions/workflows/tests.yaml
 
 
-.. _Pyrthon: https://www.github.com/tobgu/pyrthon/
+.. _Pyrthon: https://www.github.com/tobgu/pyrthon
+.. _Pyrsistent_extras: https://github.com/mingmingrr/pyrsistent-extras
 
 Pyrsistent is a number of persistent collections (by some referred to as functional data structures). Persistent in
 the sense that they are immutable.
@@ -43,8 +45,13 @@ data structures are designed to share common elements through path copying.
 It aims at taking these concepts and make them as pythonic as possible so that they can be easily integrated into any python
 program without hassle.
 
-If you want to go all in on persistent data structures and use literal syntax to define them in your code rather
-than function calls check out Pyrthon_.
+If you want use literal syntax to define them in your code rather
+than function calls check out Pyrthon_. Be aware, that one is experimental, unmaintained and alpha software. 
+
+If you cannot find the persistent data structure you're looking for here you may want to take a look at
+Pyrsistent_extras_ which is maintained by @mingmingrr. If you still don't find what you're looking for please
+open an issue for discussion. If we agree that functionality is missing you may want to go ahead and create
+a Pull Request implement the missing functionality.
 
 Examples
 --------
@@ -594,7 +601,7 @@ In this regard, thaw operates as the inverse of freeze so will thaw values insid
 Compatibility
 -------------
 
-Pyrsistent is developed and tested on Python 3.7+ and PyPy3.
+Pyrsistent is developed and tested on Python 3.8+ and PyPy3.
 
 Performance
 -----------
@@ -726,6 +733,19 @@ Hugo van Kemenade https://github.com/hugovk
 
 Ben Beasley https://github.com/musicinmybrain
 
+Noah C. Benson https://github.com/noahbenson
+
+dscrofts https://github.com/dscrofts
+
+Andy Reagan https://github.com/andyreagan
+
+Aaron Durant https://github.com/Aaron-Durant
+
+Joshua Munn https://github.com/jams2
+
+Lukas https://github.com/lukasK9999
+
+Arshad https://github.com/arshad-ml
 
 Contributing
 ------------
@@ -750,7 +770,7 @@ Release
 * Update README.rst with any new contributors and potential info needed.
 * Update _pyrsistent_version.py
 * Commit and tag with new version: `git add -u . && git commit -m 'Prepare version vX.Y.Z' && git tag -a vX.Y.Z -m 'vX.Y.Z'`
-* Push commit and tags: `git push && git push --tags`
+* Push commit and tags: `git push --follow-tags`
 * Build new release using Github actions
 
 Project status
@@ -767,5 +787,3 @@ interested in working on any of them.
 If you feel that you have a grand master plan for where you would like Pyrsistent to go and have the time to put into
 it please don't hesitate to discuss this with me and submit PRs for it. If all goes well I'd be more than happy to add
 additional maintainers to the project!
-
-
