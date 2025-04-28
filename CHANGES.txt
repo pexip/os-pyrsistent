@@ -1,5 +1,36 @@
 Revision history
 ----------------
+0.20.0, 2023-10-25
+ * Fix #245, never introduce new nodes during discard.
+ * Fix #268, do not rely on well implemented __ne__ for keys in pmaps, instead do explicit inversion of equality
+   comparison when checking for inequality.
+ * Officially support Python 3.12.
+ * Officially drop support for Python 3.7.
+ * Fix #273, build more types of wheels. Thanks @jams2 for this!
+ * Fix #282, add generic types to types. Thanks @lukasK9999 for this!
+ * Fix #281, defaultdict can now be frozen. NB! This is a backwards incompatible fix since defaultdict was not
+   previously frozen.
+
+0.19.3, 2022-12-29
+ * Fix #264, add wheels and official support for Python 3.11. Thanks @hugovk for this!
+
+0.19.2, 2022-11-03
+ * Fix #263, pmap regression in 0.19.1. Element access sometimes unreliable after insert.
+   Thanks @mwchase for reporting this!
+
+0.19.1, 2022-10-30
+ * Fix #159 (through PR #243). Pmap keys/values/items now behave more like the corresponding Python 3
+   methods on dicts. Previously they returned a materialized PVector holding the items, now they return
+   views instead. This is a slight backwards incompatibility compared to previous behaviour, hence stepping
+   version to 0.19. Thanks @noahbenson for this!
+ * Fix #244, type for argument to PVector.delete missing. @thanks dscrofts for this!
+ * Fix #249, rename perf test directory to avoid tripping up automatic discovery in more recent setuptools versions
+ * Fix #247, performance bug when setting elements in maps and adding elements to sets
+ * Fix #248, build pure Python wheels. This is used by some installers. Thanks @andyreagan for this!
+ * Fix #254, #258, support manylinux_2014_aarch64 wheels. Thanks @Aaron-Durant for this!
+
+0.19.0 - Never released due to issues found on test-PyPI
+
 0.18.1, 2022-01-14
  * Add universal wheels for MacOS, thanks @ntamas for this!
  * Add support for Python 3.10, thanks @hugovk for this!
@@ -170,6 +201,7 @@ v0.11.11, 2016-01-31
 
 v0.11.10, 2015-12-27, NOTE! This release contains a backwards incompatible change
                       despite only stepping the patch version number. See below.
+
  * Implement #74, attribute access on PClass evolver
  * Implement #75, lazily evaluated invariant messages by providing a
    callable with no arguments.

@@ -1,0 +1,18 @@
+--- a/setup.py
++++ b/setup.py
+@@ -40,6 +40,7 @@
+             e = sys.exc_info()[1]
+             sys.stderr.write('%s\n' % str(e))
+             sys.stderr.write(self.warning_message % ("extension modules", "There was an issue with your platform configuration - see above."))
++            raise
+ 
+     def build_extension(self, ext):
+         name = ext.name
+@@ -49,6 +50,7 @@
+             e = sys.exc_info()[1]
+             sys.stderr.write('%s\n' % str(e))
+             sys.stderr.write(self.warning_message % ("%s extension module" % name, "The output above this warning shows how the compilation failed."))
++            raise
+ 
+ setup(
+     name='pyrsistent',
